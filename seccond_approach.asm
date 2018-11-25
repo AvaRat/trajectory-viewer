@@ -14,9 +14,11 @@
 	
 	addi $t1, $zero, 100
 	sub $s5, $t1, $s5	# set $s5 to be the percentage of speed remained after bounce
+	
 bounce:	
 	jal draw_until_hit
-	BOUNCE_CHECK($t1, $t2, $s2, $s3)
+#	BOUNCE_CHECK($t1, $t2, $s2, $s3)
+
 	move $a0, $t1	# x(0) = last x
 	addi $a1, $zero, 256
 #	move $a1, $t2	# y(0) = last y
@@ -26,9 +28,11 @@ bounce:
 	
 	mul $a3, $s3, $s5
 	div $a3, $a3, 100	# new_Vy = Vy*L[%]
-	sub $a3, $zero, $a3	
+	sub $a3, $zero, $a3
+	ble $a2, 1, hard_stop	
 	b bounce
-	
+hard_stop:
+	END	
 	
 # @params:
 # $a0 -> X(0)-coordinate
@@ -54,7 +58,7 @@ draw_until_hit:
 	move $t1, $a0	#x
 	move $t2, $a1	#y
 		
-loop:	
+drawing_loop:	
 
 	addi $s3, $s3, 1	# dVy = 0.1m/s		
 	
@@ -66,11 +70,10 @@ loop:
 	move $a1, $t2	
 	jal get_address_from_xy
 	sw $s1, ($v0)
-	blt $t2, 256, second_check
-	b hit
-second_check:
-	blt $t1, 512, loop
-hit:	
+	bge $t2, 256, hit
+	bge $t1, 512, hard_stop
+	b drawing_loop
+hit:		
 	lw $ra, ($sp)
 	addi $sp, $sp, 4
 	jr $ra		

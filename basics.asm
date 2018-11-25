@@ -4,8 +4,74 @@ prompt_vx: .asciiz "enter Vx \n"
 prompt_vy: .asciiz "enter Vy \n"
 prompt_L: .asciiz "enter loss of speed [%] \n"
 prompt_xy: .asciiz "(x,y) "
+bounce_v: .asciiz "(Vx,Vy) "
+bounce_check: .asciiz "******BOUNCE_CHECK*******\n"
 .text
 
+.macro BOUNCE_CHECK(%x, %y, %vx, %vy)
+	la $a0, bounce_check
+	li $v0, 4
+	syscall
+	
+	la $a0, prompt_xy
+	li $v0, 4
+	syscall
+	
+	li $a0, '('
+	li $v0, 11
+	syscall
+	
+	move $a0, %x
+	li $v0, 1
+	syscall
+	
+	li $a0, ','
+	li $v0, 11
+	syscall	
+	
+	move $a0, %y
+	li $v0, 1
+	syscall
+	
+	li $a0, ')'
+	li $v0, 11
+	syscall
+	
+	li $a0, '\n'
+	li $v0, 11
+	syscall
+#################
+	la $a0, bounce_v
+	li $v0, 4
+	syscall
+	
+	li $a0, '('
+	li $v0, 11
+	syscall
+	
+	move $a0, %vx
+	li $v0, 1
+	syscall
+	
+	li $a0, ','
+	li $v0, 11
+	syscall	
+	
+	move $a0, %vy
+	li $v0, 1
+	syscall
+	
+	li $a0, ')'
+	li $v0, 11
+	syscall
+	
+	li $a0, '\n'
+	li $v0, 11
+	syscall	
+	li $a0, '\n'
+	li $v0, 11
+	syscall	
+.end_macro
 
 .macro ASK_GET_Vx(%x)
 	li $v0, 4

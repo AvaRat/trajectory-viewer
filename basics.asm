@@ -1,5 +1,4 @@
 .data
-filename: .asciiz "trajectory.bmp"
 frameBuffer: .space 0x90000
 prompt_vx: .asciiz "enter Vx[*0.1m/s] \n"
 prompt_vy: .asciiz "enter Vy[*0.1m/s] \n"

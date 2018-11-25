@@ -1,16 +1,5 @@
 .include "basics.asm"
-
 .text
-	li $v0, 13
-	la $a0, filename
-	li $a1, 9
-	li $a2, 1
-	syscall
-	move $s7, $v0
-	
-
-	FILE_TEST($v0)
-	
 	ASK_GET_Vx($s2)
 	ASK_GET_Vy($s3)
 	ASK_GET_L($s5)
@@ -43,18 +32,6 @@ bounce:
 	ble $a2, 1, hard_stop	
 	b bounce
 hard_stop:
-	li $v0, 15
-	move $a0, $s7
-	la $a1, frameBuffer
-	li $a2, 524288
-	syscall
-	
-	FILE_TEST($v0)
-	
-	li   $v0, 16       # system call for close file
-	move $a0, $s7      # file descriptor to close
-	syscall            # close file
-	 
 	END	
 	
 # @params:
@@ -87,15 +64,16 @@ drawing_loop:
 	
 	add $t1, $t1, $s2	# x = x + dx	
 	add $t2, $t2, $s3	# y = y + dy			
-#	PRINT_XY($t1, $t2)
+	PRINT_XY($t1, $t2)
 	
 	move $a0, $t1
-	move $a1, $t2	
+	move $a1, $t2
 	bge $t2, 256, hit
 	bge $t1, 512, hard_stop
-	
+		
 	jal get_address_from_xy
 	sw $s1, ($v0)
+
 	b drawing_loop
 hit:		
 	lw $ra, ($sp)
@@ -114,10 +92,3 @@ get_address_from_xy:
 	addu $t7,$t7,$s0
 	addu $v0,$t7,$t6
 	jr $ra	
-# @params:
-# $a0 -> integer to process
-#retval:
-# $v0 -> the opposite of given integer	
-
-	
-							

@@ -1,4 +1,3 @@
-.include "basics.asm"
 .include "functions.asm"
 .text
 	ASK_GET_Vx($s2)
@@ -21,7 +20,7 @@ bounce:
 #	BOUNCE_CHECK($t1, $t2, $s2, $s3)
 
 	move $a0, $t1	# x(0) = last x
-	addi $a1, $zero, 512
+	addi $a1, $zero, 256
 #	move $a1, $t2	# y(0) = last y
 	
 	mul $a2, $s2, $s5

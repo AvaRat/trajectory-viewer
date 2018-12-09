@@ -6,9 +6,10 @@ prompt_L: .asciiz "enter loss of speed [%] \n"
 prompt_xy: .asciiz "(x,y) "
 bounce_v: .asciiz "(Vx,Vy) "
 bounce_check: .asciiz "******BOUNCE_CHECK*******\n"
-file_result_test: .asciiz "******* file test: (x <0 -> error\t x -> nr of characters written\n"
+file_result_test: .asciiz "******* file test: (x <0 -> error\t x -> nr of characters written/saved/file_descriptor\n"
 .text
 
+# %r is what is supposed to be
 .macro FILE_TEST(%f)
 	move $t1, %f
 	la $a0, file_result_test
@@ -22,6 +23,7 @@ file_result_test: .asciiz "******* file test: (x <0 -> error\t x -> nr of charac
 	li $a0, '\n'
 	li $v0, 11
 	syscall
+
 .end_macro	
 	
 

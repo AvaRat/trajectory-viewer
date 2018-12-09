@@ -1,18 +1,24 @@
+.include "basics.asm"
 .data
 filename: .asciiz "trajectory.bmp"
 header_field: .ascii "BM"
-image_size: .word 4718666
+image_size: .word 393300
+default_0: .word 0
 offset: .word 74
 DIB_header_size: .word 40
-image_width: .word 1024
-image_height: .word 512
+image_width: .word 512
+image_height: .word -256
 color_planes: .half 1
 bits_per_pixel: .half 24
 compression_method: .word 0
-raw_image_size: .word 4718592
-horizontal_res: .word 
-vertical_res: .word 
-  
+raw_image_size: .word 393216
+horizontal_res: .word 0
+vertical_res: .word 0
+colors_n: .word 0
+important_col: .word 0
+
+black: .byte 0
+white: .byte 255
 
 .text
 
@@ -25,14 +31,94 @@ vertical_res: .word
 	move %f, $v0
 .end_macro
 
-.macro create_header(%f)
-
-
+.macro close_file(%f)
+	move $a0, %f
+	li $v0, 16
+	syscall
 .end_macro
 
-.macro save_2_bytes(%d, %f)
+.macro save_buffer(%d, %f)
+	move $a0, %f
+	move $a1, %d
+	lw $a2, raw_image_size
+	li $v0, 15
+	syscall
+.end_macro	
 	
 
+.macro allocate_memory_for_image(%x)
+	lw $a0, raw_image_size
+	li $v0, 9
+	syscall
+	move %x, $v0
+.end_macro
+
+.macro create_header(%f)
+	la $t1,  header_field
+	save_half($t1, %f)
+	la $t1, image_size
+	save_word($t1, %f)	
+	la $t1 default_0	
+	save_word($t1, %f)
+	la $t1, offset
+	save_word($t1, %f)
+## DIB header	
+	la $t1, DIB_header_size
+	save_word($t1, %f)	
+	la $t1, image_width
+	save_word($t1, %f)	
+	la $t1, image_height
+	save_word($t1, %f)	
+	la $t1, color_planes
+	save_half($t1, %f)	
+	la $t1, bits_per_pixel
+	save_half($t1, %f)		
+	la $t1, compression_method
+	save_word($t1, %f)
+	la $t1, raw_image_size
+	save_word($t1, %f)
+	
+	la $t1, horizontal_res
+	save_word($t1, %f)
+	la $t1, vertical_res
+	save_word($t1, %f)
+	la $t1, colors_n
+	save_word($t1, %f)
+	la $t1, important_col
+	save_word($t1, %f)
+.end_macro
+
+# allocated memory in %x
+.macro	make_image_white(%x)
+	li $s0, 255	# white
+	lw $s2,	raw_image_size
+	
+	addiu $t1, $zero, 0	# byte counter
+	move $t2, %x
+loop:
+	sb $s0, ($t2)
+	addi $t2, $t2, 1
+	addi $t1, $t1, 1
+	blt  $t1, $s2, loop
+.end_macro	
+	
+
+.macro save_half(%h, %f)
+	move $a0, %f
+	la $a1, (%h)
+	li $a2, 2
+	li $v0, 15
+	syscall	
+	FILE_TEST($v0)
+.end_macro
+.macro save_word(%w, %f)
+	move $a0, %f
+	la $a1, (%w)
+	li $a2, 4
+	li $v0, 15
+	syscall	
+	FILE_TEST($v0)
+.end_macro
 
 
 
@@ -46,6 +132,7 @@ vertical_res: .word
 # retval:
 # $t1 -> X(0)- last x coordinate
 # $t2 -> Y(0)-last x coordinate
+# $s1 -> RGB value
 # $s2 -> Vx(0)	=	 speed[x] at the end
 # $s3 -> Vy(0)	=	 speed[y] at the end
 # void -> it draws a function until it reaches one of the edges
@@ -70,8 +157,8 @@ drawing_loop:
 	
 	move $a0, $t1
 	move $a1, $t2
-	bge $t2, 512, hit
-	bge $t1, 1024, hard_stop
+	bge $t2, 256, hit
+	bge $t1, 512, hard_stop
 		
 	get_address_from_xy
 	sw $s1, ($v0)
@@ -88,7 +175,7 @@ hit:
 # $v0 -> address of given cell
 .macro get_address_from_xy
 	sll $t6,$a0,2	# scale x values to bytes (4 bytes per pixel)
-	sll $t7,$a1,12	# scale y values to bytes (512*4 bytes per display row)
+	sll $t7,$a1,11	# scale y values to bytes (512*4 bytes per display row)
 	addu $t7,$t7,$s0
 	addu $v0,$t7,$t6
 .end_macro

@@ -53,7 +53,7 @@ int read_n_bytes(ifstream &f, size_t n, vector<unsigned char> &bytes)
 int main(void)
 {
   ifstream f;
-  f.open("from_gimp.bmp", ios::binary);
+  f.open("/home/marcel/Documents/ARKO/trajectory.bmp", ios::binary);
   if (f.fail())
   {
     cout << "failed to open the file\n";
@@ -99,17 +99,19 @@ int main(void)
   cout << "bits per pixel: ";
   print_2_bytes(it);
   cout << "compression algorithm: ";
-  print_2_bytes(it);
+  print_4_bytes(it);
   cout << "image only size: ";
-  print_2_bytes(it);
+  print_4_bytes(it);
   cout << "rozdzielczosc pozioma = ";
   print_4_bytes(it);
   cout << "rozdzielczosc pionowa = ";
   print_4_bytes(it);
   cout << "colors used: ";
   print_4_bytes(it);
+  cout << "end of DIB header\n";
   it = bytes.begin();
   it+=1078;
+  /*
   if (read_n_bytes(f, 500, bytes))
   {
     cout << "error occured\n";
@@ -122,7 +124,7 @@ int main(void)
     cout << (int)*it<<'\t' << (int)*(++it) << "\t" << (int)*(++it) << endl;
   }
 
-
+  */
   f.close();
   return 0;
 }

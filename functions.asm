@@ -1,5 +1,18 @@
 .data
 filename: .asciiz "trajectory.bmp"
+header_field: .ascii "BM"
+image_size: .word 4718666
+offset: .word 74
+DIB_header_size: .word 40
+image_width: .word 1024
+image_height: .word 512
+color_planes: .half 1
+bits_per_pixel: .half 24
+compression_method: .word 0
+raw_image_size: .word 4718592
+horizontal_res: .word 
+vertical_res: .word 
+  
 
 .text
 
@@ -11,6 +24,15 @@ filename: .asciiz "trajectory.bmp"
 	syscall
 	move %f, $v0
 .end_macro
+
+.macro create_header(%f)
+
+
+.end_macro
+
+.macro save_2_bytes(%d, %f)
+	
+
 
 
 

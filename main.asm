@@ -4,8 +4,9 @@
 	ASK_GET_Vy($s3)
 	ASK_GET_L($s5)
 	
-	li $s1, -1 #white color		##!!! dont touch !!!##
-	la $s0, frameBuffer		##!!! dont touch !!!## 
+#	la $s0, frameBuffer		##!!! dont touch !!!## 
+	allocate_memory_for_image($s0)
+	make_image_white($s0)
 	
 	addi $a0, $zero, 0
 	addi $a1, $zero, 0	
@@ -17,7 +18,7 @@
 	
 bounce:	
 	draw_until_hit
-#	BOUNCE_CHECK($t1, $t2, $s2, $s3)
+	BOUNCE_CHECK($t1, $t2, $s2, $s3)
 
 	move $a0, $t1	# x(0) = last x
 	addi $a1, $zero, 256
@@ -29,8 +30,13 @@ bounce:
 	mul $a3, $s3, $s5
 	div $a3, $a3, 100	# new_Vy = Vy*L[%]
 	sub $a3, $zero, $a3
-	ble $a2, 1, hard_stop	
+	ble $a2, 1, finish	# finish if Vx <= 1	
 	b bounce
-hard_stop:
+finish:
+	open_file($t0)
+	create_header($t0)
+	save_buffer($s0, $t0)
+	close_file($t0)
+	
 	END	
 	

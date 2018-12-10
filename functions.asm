@@ -2,9 +2,9 @@
 .data
 filename: .asciiz "trajectory.bmp"
 header_field: .ascii "BM"
-image_size: .word 393300
+image_size: .word 400054
 default_0: .word 0
-offset: .word 74
+offset: .word 54
 DIB_header_size: .word 40
 image_width: .word 512
 image_height: .word -256
@@ -37,9 +37,11 @@ white: .byte 255
 	syscall
 .end_macro
 
-.macro save_buffer(%d, %f)
+# %a -> output buffer
+# %f -> file descryptor
+.macro save_buffer(%a, %f)
 	move $a0, %f
-	move $a1, %d
+	move $a1, %a
 	lw $a2, raw_image_size
 	li $v0, 15
 	syscall
@@ -86,20 +88,22 @@ white: .byte 255
 	save_word($t1, %f)
 	la $t1, important_col
 	save_word($t1, %f)
+	
+	
 .end_macro
 
 # allocated memory in %x
 .macro	make_image_white(%x)
-	li $s0, 255	# white
-	lw $s2,	raw_image_size
+	li $t3, 255	# white
+	lw $t4,	raw_image_size
 	
 	addiu $t1, $zero, 0	# byte counter
 	move $t2, %x
 loop:
-	sb $s0, ($t2)
+	sb $t3, ($t2)
 	addi $t2, $t2, 1
 	addi $t1, $t1, 1
-	blt  $t1, $s2, loop
+	blt  $t1, $t4, loop
 .end_macro	
 	
 
@@ -140,7 +144,7 @@ loop:
 # (x,y) = (10,10) equals (1m,1m)
 .macro draw_until_hit
 
-	
+	lb $s1, black
 	move $s2, $a2	# $s2 -> Vx = dx
 	move $s3, $a3	# $s3 -> Vy
 	
@@ -153,15 +157,21 @@ drawing_loop:
 	
 	add $t1, $t1, $s2	# x = x + dx	
 	add $t2, $t2, $s3	# y = y + dy			
-#	PRINT_XY($t1, $t2)
+	PRINT_XY($t1, $t2)
 	
 	move $a0, $t1
 	move $a1, $t2
 	bge $t2, 256, hit
-	bge $t1, 512, hard_stop
+	bge $t1, 512, finish
 		
 	get_address_from_xy
-	sw $s1, ($v0)
+	move $t3, $v0
+	addi $t3, $t3, -4
+	sb $s1, ($t3)
+	addi $t3, $t3, 1
+	sb $s1, ($t3)
+	addi $t3, $t3, 1
+	sb $s1, ($t3)
 
 	b drawing_loop
 hit:		

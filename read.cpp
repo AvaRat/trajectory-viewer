@@ -52,6 +52,7 @@ int read_n_bytes(ifstream &f, size_t n, vector<unsigned char> &bytes)
 
 int main(void)
 {
+  ///home/marcel/Documents/ARKO/kwadrat80.bmp
   ifstream f;
   f.open("/home/marcel/Documents/ARKO/trajectory.bmp", ios::binary);
   if (f.fail())

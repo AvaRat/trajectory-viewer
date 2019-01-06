@@ -184,8 +184,9 @@ hit:
 # retval:
 # $v0 -> address of given cell
 .macro get_address_from_xy
-	sll $t6,$a0,2	# scale x values to bytes (4 bytes per pixel)
-	sll $t7,$a1,11	# scale y values to bytes (512*4 bytes per display row)
+	mul $t6,$a0,3	# scale x values to bytes (3 bytes per pixel)
+	#sll $t7,$a1,10	# scale y values to bytes (512*4 bytes per display row)
+	mul $t7, $a1, 1536
 	addu $t7,$t7,$s0
 	addu $v0,$t7,$t6
 .end_macro

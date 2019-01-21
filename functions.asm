@@ -1,4 +1,5 @@
 .include "basics.asm"
+.include "print_in_binary.asm"
 .data
 filename: .asciiz "trajectory.bmp"
 header_field: .ascii "BM"
@@ -113,7 +114,7 @@ loop:
 	li $a2, 2
 	li $v0, 15
 	syscall	
-	FILE_TEST($v0)
+#	FILE_TEST($v0)
 .end_macro
 .macro save_word(%w, %f)
 	move $a0, %f
@@ -121,7 +122,7 @@ loop:
 	li $a2, 4
 	li $v0, 15
 	syscall	
-	FILE_TEST($v0)
+#	FILE_TEST($v0)
 .end_macro
 
 
@@ -135,7 +136,7 @@ loop:
 ##
 # retval:
 # $t1 -> X(0)- last x coordinate
-# $t2 -> Y(0)-last x coordinate
+# $t2 -> Y(0)-last y coordinate
 # $s1 -> RGB value
 # $s2 -> Vx(0)	=	 speed[x] at the end
 # $s3 -> Vy(0)	=	 speed[y] at the end
@@ -153,16 +154,16 @@ loop:
 		
 drawing_loop:	
 
-	addi $s3, $s3, 1	# dVy = 0.1m/s		
+	MY_ADDI($s3, $s3, 1)	# dVy = 0.1m/s		
 	
 	add $t1, $t1, $s2	# x = x + dx	
 	add $t2, $t2, $s3	# y = y + dy			
-	PRINT_XY($t1, $t2)
+#	PRINT_XY($t1, $t2)
 	
 	move $a0, $t1
 	move $a1, $t2
-	bge $t2, 256, hit
-	bge $t1, 512, finish
+	bge $t2, 262144, hit	#256 switched 10 left
+	bge $t1, 52488, finish	#512 switched 10 left
 		
 	get_address_from_xy
 	move $t3, $v0
@@ -185,8 +186,10 @@ hit:
 # $v0 -> address of given cell
 .macro get_address_from_xy
 	mul $t6,$a0,3	# scale x values to bytes (3 bytes per pixel)
-	#sll $t7,$a1,10	# scale y values to bytes (512*4 bytes per display row)
-	mul $t7, $a1, 1536
+	#sll $t7,$a1,10	# scale y values to bytes (512*3 bytes per display row)
+	mul $t7, $a1, 1536	# scale y values to bytes (512*3 bytes per display row)
+	PRINT_BINARY($t7)
 	addu $t7,$t7,$s0
 	addu $v0,$t7,$t6
+	srl $v0, $v0, 10	# shift right, back to normal values
 .end_macro

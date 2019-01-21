@@ -99,6 +99,7 @@ file_result_test: .asciiz "******* file test: (x <0 -> error\t x -> nr of charac
 	li $v0, 5
 	syscall
 	move %x, $v0
+	sll %x, %x, 10
 .end_macro
 
 .macro PRINT_XY(%x, %y)
@@ -139,6 +140,7 @@ file_result_test: .asciiz "******* file test: (x <0 -> error\t x -> nr of charac
 	li $v0, 5
 	syscall	
 	move %x, $v0
+	sll %x, %x, 10
 .end_macro
 
 .macro ASK_GET_L(%l)
@@ -148,6 +150,7 @@ file_result_test: .asciiz "******* file test: (x <0 -> error\t x -> nr of charac
 	li $v0, 5
 	syscall	
 	move %l, $v0
+	sll %l, %l, 10
 .end_macro
 
 .macro PRINT_INT (%x)
@@ -165,3 +168,5 @@ file_result_test: .asciiz "******* file test: (x <0 -> error\t x -> nr of charac
 	li $v0, 10
 	syscall
 .end_macro
+
+
